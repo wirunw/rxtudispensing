@@ -1,0 +1,628 @@
+<!doctype html>
+<html lang="th">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>ส่งมอบยาให้ญาติที่มารับแทน</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600;700;800&display=swap">
+<style>
+body{margin:0}
+/* Layout: one slide per screen inside a TU-red app shell; content on parchment, red header strip, gold rule */
+:root{
+  --red:#C8102E; --deep:#8B0000; --gold:#F4CD00; --green:#006838; --green-soft:#E3F1E8;
+  --navy:#1D2D5F; --bg:#FDF8EE; --surface:#FFFFFF; --fg:#2C2C2C; --muted:#6E655C; --line:#E8E1D4;
+  --red-soft:#FBE7EA; --gold-soft:#FFF6CC; --code-bg:#1D2D5F; --code-fg:#F5F2EA;
+  --seg-a:#FFD54A; --seg-b:#8FD3A7; --seg-c:#F6A5B1;
+  --font:"Sarabun","Noto Sans Thai",Tahoma,Arial,sans-serif;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#17120F; --surface:#221B17; --fg:#F1EBE3; --muted:#B5A99B; --line:#3A302A;
+  --red:#E2485D; --red-soft:#3A1C20; --gold-soft:#3A3315; --green:#4FB57A; --green-soft:#1C3326;
+  --navy:#9DB1E8; --code-bg:#0E1430; --code-fg:#EDE8DE; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#17120F; --surface:#221B17; --fg:#F1EBE3; --muted:#B5A99B; --line:#3A302A;
+  --red:#E2485D; --red-soft:#3A1C20; --gold-soft:#3A3315; --green:#4FB57A; --green-soft:#1C3326;
+  --navy:#9DB1E8; --code-bg:#0E1430; --code-fg:#EDE8DE; color-scheme:dark}
+html,body{height:100%}
+body{background:var(--bg);color:var(--fg);font-family:var(--font);font-size:17px;line-height:1.6;display:flex;flex-direction:column}
+*{box-sizing:border-box}
+.topbar{background:#C8102E;color:#fff;border-bottom:3px solid #F4CD00;padding-block:8px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));display:flex;align-items:center;gap:12px}
+.mark{background:#fff;border:2px solid #F4CD00;border-radius:4px;padding:2px 8px;display:flex;align-items:center;gap:6px;color:#8B0000;font-weight:700;font-size:13px;line-height:1.2;flex-shrink:0}
+.mark b{font-size:22px;color:#006838}
+.topbar .deck{font-weight:600;font-size:15px;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;flex:1}
+.btn{font:inherit;font-size:14px;border-radius:6px;border:1px solid currentColor;background:transparent;color:inherit;padding:5px 12px;cursor:pointer}
+.btn:focus-visible,button:focus-visible,summary:focus-visible,a:focus-visible{outline:3px solid #F4CD00;outline-offset:2px}
+.stage{flex:1;min-height:0;overflow:auto;padding-block:24px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+.slide{display:none;max-width:1080px;margin:0 auto;min-height:100%;flex-direction:column;justify-content:center;gap:18px}
+.slide.on{display:flex}
+h1,h2,h3{text-wrap:balance;line-height:1.3;margin:0}
+h2{font-size:30px;font-weight:700;color:var(--red);padding-bottom:8px;border-bottom:2px solid var(--gold)}
+h3{font-size:20px;font-weight:600}
+p{margin:0}
+.lead{font-size:19px;max-width:62ch}
+.eyebrow{font-size:13px;font-weight:600;letter-spacing:.06em;color:var(--muted)}
+/* hero & divider */
+.hero,.divider{background:linear-gradient(135deg,#C8102E,#8B0000);color:#fff;border-radius:10px;padding:48px 40px;gap:16px;display:flex;flex-direction:column}
+.hero h1{font-size:44px;font-weight:800}
+.hero .sub{color:#F4CD00;font-size:21px;font-weight:500}
+.hero .who{font-size:17px;opacity:.95}
+.hero .hint{font-size:14px;opacity:.85;border-top:1px solid rgba(255,255,255,.35);padding-top:12px}
+.rxbig{font-size:120px;line-height:1;font-weight:800;color:rgba(255,255,255,.18);align-self:flex-end;margin-top:-80px}
+.divider .num{font-size:96px;font-weight:800;line-height:1;color:#F4CD00}
+.divider h2{color:#fff;border-bottom-color:#F4CD00;font-size:36px}
+.divider p{font-size:19px;max-width:60ch}
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.chip{border:1px solid rgba(255,255,255,.6);border-radius:999px;padding:3px 12px;font-size:14px}
+/* generic grid */
+.grid{display:grid;gap:14px}
+.g2{grid-template-columns:repeat(2,minmax(0,1fr))}
+.g3{grid-template-columns:repeat(3,minmax(0,1fr))}
+.g4{grid-template-columns:repeat(4,minmax(0,1fr))}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:16px;min-width:0}
+.card h3{margin-bottom:6px}
+.ic{width:40px;height:40px;border-radius:50%;display:grid;place-items:center;background:var(--navy);color:var(--surface);margin-bottom:8px}
+.ic svg{width:22px;height:22px}
+.ic.g{background:var(--green)}
+.ic.r{background:var(--red)}
+/* map */
+.map{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px}
+.map button{font:inherit;color:inherit;text-align:left;background:var(--surface);border:1px solid var(--line);border-top:6px solid var(--red);border-radius:8px;padding:14px;cursor:pointer;display:flex;flex-direction:column;gap:6px;min-width:0}
+.map button:hover{border-color:var(--red)}
+.map .n{font-size:28px;font-weight:800;color:var(--red);line-height:1}
+.map .t{font-weight:700;font-size:17px}
+.map .d{font-size:14px;color:var(--muted)}
+.map button.case{border-top-color:var(--green)}
+.map button.case .n{color:var(--green)}
+/* flow */
+.flow{display:flex;align-items:stretch;gap:6px}
+.node{flex:1;min-width:0;background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:12px;display:flex;flex-direction:column;gap:4px}
+.node .k{width:28px;height:28px;border-radius:50%;background:var(--navy);color:var(--surface);font-weight:700;display:grid;place-items:center;font-size:14px}
+.node .nm{font-weight:700;font-size:16px;line-height:1.35}
+.node .say{font-size:14px;color:var(--muted);line-height:1.45}
+.node.key{border:2px solid var(--red);background:var(--red-soft)}
+.node.key .k{background:var(--red);color:#fff}
+.node.out{border:2px solid var(--green);background:var(--green-soft)}
+.node.out .k{background:var(--green);color:#fff}
+.arr{align-self:center;color:var(--muted);flex-shrink:0}
+.arr svg{width:18px;height:18px;display:block}
+.legend{display:flex;flex-wrap:wrap;gap:14px;font-size:14px;color:var(--muted)}
+.legend span{display:inline-flex;align-items:center;gap:6px}
+.sw{width:14px;height:14px;border-radius:3px;display:inline-block}
+/* branch */
+.branch{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}
+.side{border-radius:8px;padding:16px;min-width:0;display:flex;flex-direction:column;gap:8px}
+.side.weak{background:var(--surface);border:1px dashed var(--muted)}
+.side.strong{background:var(--green-soft);border:2px solid var(--green)}
+.side .tag{font-size:13px;font-weight:700;letter-spacing:.04em}
+.side.weak .tag{color:var(--muted)}
+.side.strong .tag{color:var(--green)}
+.quote{font-size:17px;background:var(--surface);border-radius:6px;padding:10px 12px;border:1px solid var(--line)}
+/* script box */
+.script{background:var(--code-bg);color:var(--code-fg);border-radius:8px;padding:16px 16px 14px;position:relative;min-width:0}
+.script .txt{font-size:17px;line-height:1.75;white-space:pre-wrap;padding-right:84px}
+.script .copy{position:absolute;top:10px;right:10px;font:inherit;font-size:13px;background:#F4CD00;color:#1D2D5F;border:0;border-radius:5px;padding:4px 10px;cursor:pointer;font-weight:600}
+.seg{border-radius:3px;padding:0 2px;color:#1D2D5F}
+.sa{background:var(--seg-a)}.sb{background:var(--seg-b)}.sc{background:var(--seg-c)}
+/* callouts */
+.callout{border-left:5px solid var(--red);background:var(--red-soft);border-radius:0 8px 8px 0;padding:12px 16px;display:flex;gap:12px;align-items:flex-start}
+.callout svg{flex-shrink:0;width:22px;height:22px;color:var(--red);margin-top:3px}
+.hw{border:2px solid var(--gold);background:var(--gold-soft);border-radius:8px;padding:12px 16px}
+.hw b{color:var(--fg)}
+.teach{border-left:5px solid var(--navy);background:var(--surface);border-radius:0 8px 8px 0;padding:12px 16px;font-size:16px}
+/* bars */
+.bars{display:flex;flex-direction:column;gap:9px}
+.bar{display:grid;grid-template-columns:minmax(0,1.3fr) minmax(0,1fr);gap:12px;align-items:center}
+.bar .lb{font-size:16px;text-align:right}
+.bar .tr{height:22px;background:var(--line);border-radius:4px;position:relative}
+.bar .fl{height:100%;border-radius:4px}
+.bar .lv{font-size:13px;color:var(--muted)}
+.ph1{background:#2F5D8A}.ph2{background:#C9822B}.ph3{background:#6B8E5A}
+/* table */
+.tw{overflow-x:auto}
+table{border-collapse:collapse;width:100%;font-size:16px;background:var(--surface)}
+th,td{border:1px solid var(--line);padding:9px 12px;text-align:left;vertical-align:top}
+th{background:var(--navy);color:var(--surface);font-weight:600}
+td.bad{color:var(--muted)}
+/* Rx card */
+.rx{background:var(--surface);border:1px solid var(--line);border-radius:8px;overflow:hidden;min-width:0}
+.rx .hd{background:var(--navy);color:var(--surface);padding:8px 14px;font-weight:600;display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap}
+.rx .bd{padding:12px 14px;display:flex;flex-direction:column;gap:6px;font-size:16px}
+.rx .drug{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:15px;background:var(--bg);border-radius:4px;padding:6px 8px;display:flex;justify-content:space-between;gap:8px}
+.must{display:flex;flex-direction:column;gap:8px;margin:0;padding:0;list-style:none}
+.must li{display:flex;gap:10px;align-items:flex-start}
+.must li::before{content:"";width:10px;height:10px;border-radius:50%;background:var(--red);margin-top:9px;flex-shrink:0}
+/* reveal */
+details{background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:12px 16px}
+summary{cursor:pointer;font-weight:600;font-size:17px}
+details[open]{border-color:var(--green)}
+details p{margin-top:8px;color:var(--fg)}
+/* summary formula */
+.formula{display:flex;gap:10px;align-items:stretch;flex-wrap:wrap}
+.formula .f{flex:1;min-width:180px;border-radius:8px;padding:16px;color:#fff;display:flex;flex-direction:column;gap:4px}
+.formula .f b{font-size:22px}
+.f1{background:#1D2D5F}.f2{background:#C8102E}.f3{background:#006838}
+.credit{border:1px solid var(--line);border-top:4px solid var(--red);border-radius:8px;padding:14px 16px;background:var(--surface);font-size:15px;display:flex;flex-direction:column;gap:4px}
+.credit .nm{font-weight:700;font-size:17px}
+.small{font-size:13px;color:var(--muted)}
+/* svg timeline */
+.tl{width:100%;height:auto;display:block}
+.tl text{font-family:var(--font)}
+/* pager & footer */
+.pager{display:flex;align-items:center;gap:12px;padding-block:8px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));border-top:1px solid var(--line);background:var(--surface)}
+.pager .btn{color:var(--red);border-color:var(--red)}
+.prog{flex:1;height:6px;background:var(--line);border-radius:3px;overflow:hidden}
+.prog i{display:block;height:100%;background:linear-gradient(90deg,#C8102E,#F4CD00);width:0;transition:width .25s}
+.pno{font-size:14px;color:var(--muted);font-variant-numeric:tabular-nums;min-width:56px;text-align:center}
+.foot{background:#8B0000;color:#fff;font-size:12px;text-align:center;padding-top:4px;padding-bottom:calc(4px + env(safe-area-inset-bottom,0px));padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+/* drawer */
+.drawer{position:fixed;top:0;right:0;bottom:0;width:min(360px,90vw);background:var(--surface);border-left:3px solid #F4CD00;box-shadow:-6px 0 24px rgba(0,0,0,.2);z-index:20;overflow:auto;padding-top:calc(16px + env(safe-area-inset-top,0px));padding-bottom:calc(16px + env(safe-area-inset-bottom,0px));padding-left:16px;padding-right:max(16px,env(safe-area-inset-right,0px))}
+.drawer h3{color:var(--red);margin-bottom:8px}
+.drawer .grp{font-size:13px;font-weight:700;color:var(--muted);margin:14px 0 4px;letter-spacing:.04em}
+.drawer button.it{display:block;width:100%;text-align:left;font:inherit;font-size:15px;background:none;border:0;color:var(--fg);padding:5px 8px;border-radius:5px;cursor:pointer}
+.drawer button.it:hover,.drawer button.it.cur{background:var(--red-soft);color:var(--red)}
+.scrim{position:fixed;inset:0;background:rgba(0,0,0,.35);z-index:19}
+@media (max-width:860px){.g4,.map{grid-template-columns:repeat(2,minmax(0,1fr))}.g3{grid-template-columns:minmax(0,1fr)}}
+@media (max-width:760px){
+  body{font-size:16px}
+  h2{font-size:24px}.hero h1{font-size:32px}.divider .num{font-size:64px}.divider h2{font-size:28px}
+  .hero,.divider{padding:28px 20px}
+  .flow{flex-direction:column}.arr{transform:rotate(90deg)}
+  .branch,.g2{grid-template-columns:minmax(0,1fr)}
+  .bar{grid-template-columns:minmax(0,1fr)}.bar .lb{text-align:left}
+  .topbar .deck{font-size:13px}.mark span{display:none}
+  .script .txt{padding-right:0;padding-top:28px}
+}
+@media (max-width:480px){.map,.g4{grid-template-columns:minmax(0,1fr)}}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+</style>
+</head>
+<body>
+<header class="topbar">
+  <div class="mark" aria-label="คณะเภสัชศาสตร์ มหาวิทยาลัยธรรมศาสตร์"><b>℞</b><span>คณะเภสัชศาสตร์<br>มหาวิทยาลัยธรรมศาสตร์</span></div>
+  <div class="deck">PM311 · ส่งมอบยาให้ญาติที่มารับแทน</div>
+  <button class="btn" id="tocBtn" type="button">สารบัญ</button>
+</header>
+
+<main class="stage" id="stage">
+
+<!-- 1 -->
+<section class="slide" data-g="เปิดเรื่อง" data-t="หน้าแรก">
+  <div class="hero">
+    <p class="eyebrow" style="color:#F4CD00">PM311 ปฏิบัติการส่งมอบยา</p>
+    <h1>ส่งมอบยาให้ญาติที่มารับแทน</h1>
+    <p class="sub">บทเรียนจากห้องสอบ: ยาถูกแล้ว แต่คนรับยาเอาไปใช้ต่อได้หรือยัง</p>
+    <p class="who">ดร.ภก.วิรุณ เวชศิริ · คณะเภสัชศาสตร์ มหาวิทยาลัยธรรมศาสตร์</p>
+    <p class="hint">เลื่อนหน้าด้วยปุ่มด้านล่าง ปุ่มลูกศรบนคีย์บอร์ด หรือปัดซ้ายขวาบนมือถือ</p>
+    <div class="rxbig" aria-hidden="true">℞</div>
+  </div>
+</section>
+
+<!-- 2 -->
+<section class="slide" data-g="เปิดเรื่อง" data-t="ภาพรวมบทเรียน">
+  <h2>ภาพรวมบทเรียน</h2>
+  <p class="lead">การส่งมอบยาแบ่งได้เป็นสามช่วง แต่ละช่วงมีจุดที่นักศึกษาพลาดต่างกัน กดที่แต่ละบทเพื่อข้ามไปได้เลย</p>
+  <div class="map">
+    <button type="button" data-go="ch1"><span class="n">1</span><span class="t">ก่อนพูดถึงยา</span><span class="d">ยืนยันตัว ถามว่ารับแทนใคร ถามแพ้ ถามว่าแพทย์บอกอะไรมา</span></button>
+    <button type="button" data-go="ch2"><span class="n">2</span><span class="t">อธิบายยาให้คนที่ไม่ได้กินเอง</span><span class="d">ชูยาให้เห็น ระยะเวลาที่ไม่เท่ากัน สัญญาณอันตราย</span></button>
+    <button type="button" data-go="ch3"><span class="n">3</span><span class="t">ปิดท้ายให้ใช้ได้จริง</span><span class="d">ให้ชี้ยา คำแนะนำที่ไม่ใช่ยา เมื่อไรต้องกลับมา</span></button>
+    <button type="button" class="case" data-go="ch4"><span class="n">4</span><span class="t">กรณีศึกษา</span><span class="d">ใบสั่งยา 2 เคส และคำถามลองเชิงให้ซ้อมเป็นคู่</span></button>
+  </div>
+  <div class="teach"><b>วิธีเรียน:</b> ทุกบทมีบทพูดตัวอย่างให้คัดลอกไปซ้อม และมีการบ้านหนึ่งข้อ บทที่ 4 ใช้จับคู่ซ้อม คนหนึ่งเป็นเภสัชกร อีกคนเป็นญาติ</div>
+</section>
+
+<!-- 3 -->
+<section class="slide" data-g="เปิดเรื่อง" data-t="จบบทแล้วทำอะไรได้">
+  <h2>จบบทเรียนนี้ ควรทำได้ 4 อย่าง</h2>
+  <div class="grid g2">
+    <div class="card"><div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 4-6 8-6s8 2 8 6"/></svg></div><h3>เปิดเคสได้ครบ</h3><p>ยืนยันตัว 2 ตัวบ่งชี้ ถามว่ารับแทนใคร ถามแพ้ยา อาหาร สารเคมี และถาม prime question</p></div>
+    <div class="card"><div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="8" width="18" height="8" rx="4"/><path d="M12 8v8"/></svg></div><h3>อธิบายยาโดยชูยาให้เห็น</h3><p>บอกชื่อยา ข้อบ่งใช้ วิธีใช้ และระยะเวลา โดยถือยาตัวที่กำลังพูดถึงไว้ในมือ</p></div>
+    <div class="card"><div class="ic r"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3 2 20h20L12 3z"/><path d="M12 10v4M12 17h.01"/></svg></div><h3>บอกเรื่องความปลอดภัยที่มักหลุด</h3><p>อาการแพ้ยา ยาที่หมดไม่พร้อมกัน และเมื่อไรต้องกลับมาพบแพทย์</p></div>
+    <div class="card"><div class="ic g"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 11V5a2 2 0 0 1 4 0v6"/><path d="M13 9a2 2 0 0 1 4 0v4a7 7 0 0 1-7 7 6 6 0 0 1-6-6v-2a2 2 0 0 1 4 0"/></svg></div><h3>ทำ teach-back แบบให้ชี้ยา</h3><p>ให้ญาติชี้เองว่ายาตัวไหนใช้อย่างไร แทนการทวนด้วยปากอย่างเดียว</p></div>
+  </div>
+</section>
+
+<!-- 4 -->
+<section class="slide" data-g="เปิดเรื่อง" data-t="เห็นอะไรในห้องสอบ">
+  <h2>เห็นอะไรในห้องสอบ</h2>
+  <p class="lead">เกือบทุกคนอธิบายวิธีใช้ยาได้ถูก ที่หลุดบ่อยเป็นเรื่องรอบ ๆ ตัวยา และส่วนใหญ่เกิดก่อนจะพูดถึงยาด้วยซ้ำ</p>
+  <div class="bars" role="img" aria-label="จุดที่พลาดบ่อยในการส่งมอบยา เรียงจากพบบ่อยไปพบน้อย">
+    <div class="bar"><span class="lb">ไม่ชูซองยา ไม่ชี้เม็ดหรือหลอดยาให้เห็น</span><span class="tr"><span class="fl ph2" style="width:100%;display:block"></span></span></div>
+    <div class="bar"><span class="lb">ถามแพ้ไม่ครบ ยา อาหาร สารเคมี</span><span class="tr"><span class="fl ph1" style="width:80%;display:block"></span></span></div>
+    <div class="bar"><span class="lb">ไม่ถามว่าแพทย์บอกอะไรมาแล้ว</span><span class="tr"><span class="fl ph1" style="width:70%;display:block"></span></span></div>
+    <div class="bar"><span class="lb">ไม่ให้คำแนะนำที่ไม่ใช่ยา</span><span class="tr"><span class="fl ph3" style="width:50%;display:block"></span></span></div>
+    <div class="bar"><span class="lb">ไม่สบตาผู้รับยา</span><span class="tr"><span class="fl ph2" style="width:50%;display:block"></span></span></div>
+    <div class="bar"><span class="lb">ยืนยันตัวไม่ถึง 2 ตัวบ่งชี้</span><span class="tr"><span class="fl ph1" style="width:30%;display:block"></span></span></div>
+    <div class="bar"><span class="lb">ไม่ทำ teach-back</span><span class="tr"><span class="fl ph3" style="width:30%;display:block"></span></span></div>
+  </div>
+  <div class="legend"><span><i class="sw ph1"></i>ช่วงเปิดเคส</span><span><i class="sw ph2"></i>ระหว่างอธิบายยา</span><span><i class="sw ph3"></i>ช่วงปิดท้าย</span><span class="small">ความยาวแท่งใช้เทียบกันคร่าว ๆ จากการสังเกตในห้องสอบ</span></div>
+</section>
+
+<!-- CH1 -->
+<section class="slide" id="ch1" data-g="บท 1 ก่อนพูดถึงยา" data-t="หน้าคั่นบท 1">
+  <div class="divider">
+    <div class="num">1</div>
+    <h2>ก่อนพูดถึงยา</h2>
+    <p>ช่วงสองนาทีแรกตัดสินว่าเรากำลังส่งยาให้ถูกคน และรู้พอจะอธิบายต่อหรือยัง</p>
+    <div class="chips"><span class="chip">ทักทายก่อนก้มอ่าน</span><span class="chip">2 ตัวบ่งชี้</span><span class="chip">รับเองหรือรับแทน</span><span class="chip">แพ้ 3 อย่าง</span><span class="chip">prime question</span></div>
+  </div>
+</section>
+
+<section class="slide" data-g="บท 1 ก่อนพูดถึงยา" data-t="ลำดับเปิดเคส">
+  <h2>ลำดับเปิดเคส 6 ขั้น</h2>
+  <div class="flow">
+    <div class="node"><span class="k">1</span><span class="nm">ทักทาย แนะนำตัว</span><span class="say">ถ้าต้องอ่านใบสั่งก่อน ให้บอกว่าขอเช็กยาสักครู่</span></div>
+    <span class="arr"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span>
+    <div class="node key"><span class="k">2</span><span class="nm">ยืนยันตัวผู้ป่วย</span><span class="say">ชื่อ-นามสกุล คู่กับอายุ วันเกิด หรือเลขบัตร</span></div>
+    <span class="arr"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span>
+    <div class="node key"><span class="k">3</span><span class="nm">รับเองหรือรับแทนใคร</span><span class="say">คำตอบนี้เปลี่ยนวิธีอธิบายทั้งหมดที่ตามมา</span></div>
+    <span class="arr"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span>
+    <div class="node"><span class="k">4</span><span class="nm">แพ้ยา อาหาร สารเคมี</span><span class="say">ถามให้ครบสามคำ และถามโรคประจำตัว</span></div>
+    <span class="arr"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span>
+    <div class="node"><span class="k">5</span><span class="nm">prime question</span><span class="say">แพทย์บอกว่าเป็นอะไร ให้ยาอะไร มีผลข้างเคียงอะไร</span></div>
+    <span class="arr"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span>
+    <div class="node out"><span class="k">6</span><span class="nm">พร้อมอธิบายยา</span><span class="say">รู้ว่าใครรับ รู้ว่าเขารู้อะไรแล้ว</span></div>
+  </div>
+  <div class="legend"><span><i class="sw" style="background:var(--red)"></i>ขั้นที่พลาดแล้วกระทบความปลอดภัย</span><span><i class="sw" style="background:var(--green)"></i>ผลที่ต้องได้ก่อนไปบทต่อไป</span></div>
+</section>
+
+<section class="slide" data-g="บท 1 ก่อนพูดถึงยา" data-t="ยืนยันตัวผู้ป่วย">
+  <h2>ยืนยันตัวผู้ป่วย ต้องมี 2 ตัวบ่งชี้</h2>
+  <div class="branch">
+    <div class="side weak"><span class="tag">ยังไม่พอ</span>
+      <div class="quote">"คนไข้ชื่ออะไรคะ"</div>
+      <p>ชื่อซ้ำกันได้ ยิ่งในเคสรับแทน ญาติอาจหยิบใบสั่งของคนอื่นในบ้านมา และถามแค่ชื่อได้คะแนนเพียงครึ่งเดียวในแบบประเมิน</p>
+    </div>
+    <div class="side strong"><span class="tag">ทำแบบนี้</span>
+      <div class="quote">"ขอทราบชื่อ-นามสกุลผู้ป่วย และอายุ หรือขอดูบัตรประชาชนด้วยนะคะ วันนี้มารับเองหรือรับแทนใครคะ"</div>
+      <p>ได้ครบในประโยคเดียว ทั้งตัวบ่งชี้สองตัว และรู้ว่าคนตรงหน้าเป็นใคร</p>
+    </div>
+  </div>
+  <div class="callout"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 8v5M12 16h.01"/></svg><p>ถ้าต้องก้มอ่านใบสั่งยาก่อน ให้ทักทายและบอกว่า "ขออนุญาตตรวจเช็กข้อมูลยาสักครู่นะคะ" ผู้รับยาจะได้ไม่นั่งรอเงียบ ๆ โดยไม่รู้ว่าเกิดอะไรขึ้น</p></div>
+</section>
+
+<section class="slide" data-g="บท 1 ก่อนพูดถึงยา" data-t="prime question">
+  <h2>prime question: ถามก่อนว่าแพทย์บอกอะไรมาแล้ว</h2>
+  <p class="lead">ถามสามข้อนี้ก่อนอธิบาย เราจะไม่พูดซ้ำสิ่งที่เขารู้แล้ว และไม่พูดขัดกับที่แพทย์บอก</p>
+  <div class="grid g3">
+    <div class="card"><div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 5h16v11H8l-4 4z"/></svg></div><h3>แพทย์บอกว่าเป็นอะไร</h3><p>ในห้องสอบ ญาติตอบได้แค่ "แผลติดเชื้อ" หรือ "เจ็บคอ" เราจะได้รู้ว่าต้องเริ่มอธิบายจากตรงไหน</p></div>
+    <div class="card"><div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="8" width="18" height="8" rx="4"/><path d="M12 8v8"/></svg></div><h3>แพทย์บอกว่าให้ยาอะไร</h3><p>ส่วนใหญ่ได้คำตอบว่า "ยาฆ่าเชื้อ" แต่ไม่รู้ว่ามียาทาด้วย หรือมียาแก้แพ้อีกตัว</p></div>
+    <div class="card"><div class="ic r"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3 2 20h20L12 3z"/><path d="M12 10v4M12 17h.01"/></svg></div><h3>แพทย์บอกผลข้างเคียงไหม</h3><p>ข้อนี้หลุดบ่อยที่สุดในสามข้อ ถ้าแพทย์ยังไม่ได้บอก เราต้องเป็นคนบอก</p></div>
+  </div>
+</section>
+
+<section class="slide" data-g="บท 1 ก่อนพูดถึงยา" data-t="บทพูดเปิดเคส">
+  <h2>บทพูดตัวอย่าง ช่วงเปิดเคส</h2>
+  <div class="legend"><span><i class="sw sa"></i>ทักทายและยืนยันตัว</span><span><i class="sw sb"></i>ถามว่ารับแทนใครและถามแพ้</span><span><i class="sw sc"></i>prime question</span></div>
+  <div class="script"><button class="copy" type="button">คัดลอก</button><div class="txt"><span class="seg sa">สวัสดีค่ะ ดิฉันเภสัชกร...ค่ะ ขออนุญาตเช็กข้อมูลยาสักครู่นะคะ ขอทราบชื่อ-นามสกุลผู้ป่วย และขอดูบัตรประชาชนด้วยค่ะ</span> <span class="seg sb">วันนี้มารับยาเองหรือรับแทนใครคะ น้องมีประวัติแพ้ยา แพ้อาหาร หรือแพ้สารเคมีอะไรไหมคะ มีโรคประจำตัวไหมคะ</span> <span class="seg sc">คุณหมอบอกไหมคะว่าน้องเป็นอะไร ให้ยาอะไรมาบ้าง แล้วได้บอกเรื่องผลข้างเคียงของยาไว้หรือยังคะ</span></div></div>
+  <div class="branch">
+    <div class="side weak"><span class="tag">ที่เจอบ่อยในห้องสอบ</span><div class="quote">"คนไข้ชื่ออะไรคะ แพ้ยาไหมคะ เป็นอะไรมาคะ"</div></div>
+    <div class="side strong"><span class="tag">ต่างกันตรงไหน</span><p>บทพูดด้านบนยาวขึ้นไม่กี่วินาที แต่ได้ตัวบ่งชี้สองตัว ได้รู้ว่ารับแทน ได้ประวัติแพ้ครบสามอย่าง และได้รู้ว่าแพทย์บอกอะไรไปแล้ว</p></div>
+  </div>
+</section>
+
+<section class="slide" data-g="บท 1 ก่อนพูดถึงยา" data-t="ข้อควรระวังและการบ้าน บท 1">
+  <h2>ข้อควรระวัง บท 1</h2>
+  <div class="callout"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3 2 20h20L12 3z"/><path d="M12 10v4M12 17h.01"/></svg><p>ใบสั่งยาเขียนว่า "ปฏิเสธการแพ้ยา" ก็ยังต้องถามซ้ำ ข้อมูลในระบบอาจไม่ครบ และคำว่าแพ้อาหารหรือสารเคมีช่วยให้ญาตินึกถึงเรื่องที่ไม่เคยคิดว่าเป็นการแพ้</p></div>
+  <div class="callout"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3 2 20h20L12 3z"/><path d="M12 10v4M12 17h.01"/></svg><p>ถ้าลืมถามว่ารับแทนใคร แล้วนึกได้กลางทาง ให้วกกลับมาถามทันที ดีกว่าอธิบายต่อไปทั้งที่ไม่รู้ว่าใครจะเป็นคนใช้ยา</p></div>
+  <div class="hw"><b>การบ้าน:</b> ซ้อมพูดบทเปิดเคสหน้าก่อนออกเสียงดังจนจบได้ใน 40 วินาทีโดยไม่ดูโน้ต แล้วจับเวลาตัวเองหนึ่งครั้ง</div>
+</section>
+
+<!-- CH2 -->
+<section class="slide" id="ch2" data-g="บท 2 อธิบายยา" data-t="หน้าคั่นบท 2">
+  <div class="divider">
+    <div class="num">2</div>
+    <h2>อธิบายยาให้คนที่ไม่ได้กินเอง</h2>
+    <p>ญาติต้องจำทั้งหน้าตายาและวิธีใช้ แล้วกลับไปบอกต่อ เราจึงต้องอธิบายให้เห็น ไม่ใช่ให้ได้ยินอย่างเดียว</p>
+    <div class="chips"><span class="chip">ชูยาทีละตัว</span><span class="chip">ชื่อยาจริง</span><span class="chip">ระยะเวลาไม่เท่ากัน</span><span class="chip">สัญญาณอันตราย</span></div>
+  </div>
+</section>
+
+<section class="slide" data-g="บท 2 อธิบายยา" data-t="อธิบายยาทีละตัว">
+  <h2>อธิบายยาทีละตัว ใช้ลำดับเดิมทุกตัว</h2>
+  <div class="flow">
+    <div class="node key"><span class="k">1</span><span class="nm">หยิบยาขึ้นมาให้เห็น</span><span class="say">เปิดซองชี้เม็ด หรือยกหลอดยา ถือไว้ตลอดที่พูดถึงตัวนั้น</span></div>
+    <span class="arr"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span>
+    <div class="node"><span class="k">2</span><span class="nm">ชื่อยา ความแรง ข้อบ่งใช้</span><span class="say">"Dicloxacillin 250 mg เป็นยาฆ่าเชื้อแบคทีเรีย"</span></div>
+    <span class="arr"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span>
+    <div class="node"><span class="k">3</span><span class="nm">วิธีใช้และเวลา</span><span class="say">ครั้งละเท่าไร วันละกี่ครั้ง ก่อนหรือหลังอาหารนานเท่าไร</span></div>
+    <span class="arr"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span>
+    <div class="node"><span class="k">4</span><span class="nm">ใช้นานแค่ไหน</span><span class="say">กินจนหมด หรือกี่วัน และหยุดเองได้หรือไม่</span></div>
+    <span class="arr"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span>
+    <div class="node key"><span class="k">5</span><span class="nm">ผลข้างเคียงและอาการแพ้</span><span class="say">อะไรเจอได้ อะไรต้องหยุดยาแล้วมาโรงพยาบาล</span></div>
+  </div>
+  <div class="callout"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 8v5M12 16h.01"/></svg><p>เรียกยาด้วยชื่อจริงเสมอ บางคนในห้องสอบเรียกแค่ "ยากินฆ่าเชื้อ" กับ "ยาทา" ถ้าวันหลังญาติต้องบอกแพทย์อีกคนว่ากินยาอะไรอยู่ เขาจะตอบไม่ได้</p></div>
+</section>
+
+<section class="slide" data-g="บท 2 อธิบายยา" data-t="ยาที่หมดไม่พร้อมกัน">
+  <h2>ยากินกับยาทาหมดไม่พร้อมกัน</h2>
+  <p class="lead">เคสแผลติดเชื้อ ยากินมี 20 เม็ด วันละ 4 ครั้ง ส่วนยาทาต้องทา 10 วัน ถ้าไม่บอกตรง ๆ ญาติจะงงตอนยากินหมด</p>
+  <div class="tw">
+  <svg class="tl" viewBox="0 0 760 170" role="img" aria-label="Dicloxacillin หมดวันที่ 5 ส่วน Mupirocin ทาถึงวันที่ 10">
+    <g font-size="14" fill="var(--muted)">
+      <text x="150" y="20">วัน 1</text><text x="414" y="20">วัน 5</text><text x="700" y="20">วัน 10</text>
+    </g>
+    <line x1="160" y1="30" x2="720" y2="30" stroke="var(--line)" stroke-width="2"/>
+    <text x="0" y="68" font-size="16" font-weight="700" fill="var(--fg)">Dicloxacillin</text>
+    <text x="0" y="86" font-size="13" fill="var(--muted)">20 เม็ด · วันละ 4 ครั้ง</text>
+    <rect x="160" y="54" width="280" height="30" rx="5" fill="#C9822B"/>
+    <text x="452" y="74" font-size="14" fill="var(--fg)">หมดวันที่ 5 ไม่ต้องกลับมาเอาเพิ่ม</text>
+    <text x="0" y="128" font-size="16" font-weight="700" fill="var(--fg)">Mupirocin 2%</text>
+    <text x="0" y="146" font-size="13" fill="var(--muted)">ทาวันละ 3 ครั้ง</text>
+    <rect x="160" y="114" width="560" height="30" rx="5" fill="#2F5D8A"/>
+    <text x="172" y="134" font-size="14" fill="#FFFFFF">ทาต่อจนครบ 10 วัน แม้ยากินหมดแล้ว</text>
+  </svg>
+  </div>
+  <div class="script"><button class="copy" type="button">คัดลอก</button><div class="txt">ยากินตัวนี้จะหมดก่อนนะคะ ประมาณวันที่ 5 กินจนหมดแล้วไม่ต้องกลับมาเอาเพิ่มค่ะ ส่วนยาทาให้ทาต่อจนครบ 10 วัน ถึงยากินจะหมดแล้วก็ตามนะคะ</div></div>
+</section>
+
+<section class="slide" data-g="บท 2 อธิบายยา" data-t="ผลข้างเคียงกับสัญญาณอันตราย">
+  <h2>ผลข้างเคียงทั่วไป กับ สัญญาณอันตราย</h2>
+  <p class="lead">ในห้องสอบ หลายคนเตือนเรื่องคลื่นไส้ท้องเสียได้ แต่ไม่มีใครเตือนอาการแพ้ยา ทั้งที่ยาทั้งสองเคสเป็นกลุ่มเพนิซิลลิน</p>
+  <div class="branch">
+    <div class="side weak"><span class="tag">เจอได้ ใช้ยาต่อได้</span>
+      <p>คลื่นไส้ ปวดท้อง ถ่ายเหลวเล็กน้อย</p>
+      <p>ยาทาอาจแสบบริเวณที่ทาเล็กน้อย</p>
+      <p>Cetirizine อาจง่วงในบางคน</p>
+    </div>
+    <div class="side strong" style="background:var(--red-soft);border-color:var(--red)"><span class="tag" style="color:var(--red)">หยุดยา แล้วรีบมาโรงพยาบาล</span>
+      <p>ผื่นขึ้นทั่วตัว ลมพิษ คัน</p>
+      <p>หน้าบวม ปากบวม ตาบวม</p>
+      <p>หายใจลำบาก แน่นหน้าอก</p>
+    </div>
+  </div>
+  <div class="script"><button class="copy" type="button">คัดลอก</button><div class="txt">ยานี้เป็นกลุ่มเพนิซิลลินนะคะ ถ้าน้องกินแล้วมีผื่นขึ้น ลมพิษ หน้าหรือปากบวม หรือหายใจไม่สะดวก ให้หยุดยาแล้วพามาโรงพยาบาลทันทีค่ะ</div></div>
+</section>
+
+<section class="slide" data-g="บท 2 อธิบายยา" data-t="คำพูดเรื่อง Cetirizine">
+  <h2>เลือกคำให้ตรง: ตัวอย่างจาก Cetirizine</h2>
+  <div class="tw"><table>
+    <thead><tr><th>ที่ได้ยินในห้องสอบ</th><th>พูดแบบนี้ตรงกว่า</th><th>เพราะ</th></tr></thead>
+    <tbody>
+      <tr><td class="bad">"ยานี้ทำให้ง่วง"</td><td>"ยานี้อาจทำให้ง่วงได้ในบางคน"</td><td>เป็น antihistamine รุ่นที่สอง ง่วงได้แต่ไม่ใช่ทุกคน</td></tr>
+      <tr><td class="bad">"เป็นยาแก้แพ้ ลดน้ำมูก"</td><td>ถามก่อนว่ามีน้ำมูกหรืออาการอะไร แล้วค่อยบอกว่ายาช่วยอะไร</td><td>เคสนี้มาด้วยอาการเจ็บคอ ยังไม่รู้ว่ามีน้ำมูกหรือเปล่า</td></tr>
+      <tr><td class="bad">"กินเมื่อมีอาการ"</td><td>"กินวันละ 1 เม็ด ก่อนนอน"</td><td>ใบสั่งเขียน 1x1 po hs ถ้าจะแนะนำต่างจากใบสั่ง ต้องมีเหตุผลและบอกให้ชัด</td></tr>
+    </tbody>
+  </table></div>
+  <div class="callout"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 8v5M12 16h.01"/></svg><p>เมื่อเตือนเรื่องง่วง ให้บอกต่อเลยว่าควรเลี่ยงอะไร: ขับรถ ทำงานกับเครื่องจักร และเครื่องดื่มแอลกอฮอล์</p></div>
+</section>
+
+<section class="slide" data-g="บท 2 อธิบายยา" data-t="บทพูดอธิบายยา">
+  <h2>บทพูดตัวอย่าง อธิบาย Dicloxacillin</h2>
+  <div class="legend"><span><i class="sw sa"></i>ชูยา ชื่อยา ข้อบ่งใช้</span><span><i class="sw sb"></i>วิธีใช้และระยะเวลา</span><span><i class="sw sc"></i>ผลข้างเคียงและอาการแพ้</span></div>
+  <div class="script"><button class="copy" type="button">คัดลอก</button><div class="txt"><span class="seg sa">ตัวแรกเป็นแคปซูลหน้าตาแบบนี้นะคะ ชื่อ Dicloxacillin 250 มิลลิกรัม เป็นยาฆ่าเชื้อแบคทีเรียสำหรับแผลที่ติดเชื้อค่ะ</span> <span class="seg sb">กินครั้งละ 1 แคปซูล วันละ 4 ครั้ง ตอนท้องว่าง ก่อนอาหารเช้า กลางวัน เย็น ประมาณ 1 ชั่วโมง และก่อนนอน กินต่อเนื่องจนหมด ห้ามหยุดเองแม้แผลดีขึ้นแล้ว</span> <span class="seg sc">อาจคลื่นไส้หรือถ่ายเหลวได้บ้าง แต่ถ้ามีผื่น ลมพิษ หน้าบวม หรือหายใจลำบาก ให้หยุดยาแล้วพามาโรงพยาบาลทันทีค่ะ</span></div></div>
+  <div class="callout"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 8v5M12 16h.01"/></svg><p>เคสเด็ก ควรถามด้วยว่าน้องกลืนแคปซูลได้ไหม ในห้องสอบไม่มีใครถามเลย ทั้งที่คนที่ต้องจัดการเรื่องนี้คือพ่อที่มารับยาแทน</p></div>
+</section>
+
+<section class="slide" data-g="บท 2 อธิบายยา" data-t="การบ้าน บท 2">
+  <h2>ข้อควรระวังและการบ้าน บท 2</h2>
+  <div class="callout"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3 2 20h20L12 3z"/><path d="M12 10v4M12 17h.01"/></svg><p>"ก่อนอาหาร" อย่างเดียวยังไม่พอสำหรับยาที่ต้องกินตอนท้องว่าง ต้องบอกว่าก่อนนานเท่าไร ไม่อย่างนั้นญาติอาจให้กินก่อนข้าวแค่ห้านาที</p></div>
+  <div class="callout"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3 2 20h20L12 3z"/><path d="M12 10v4M12 17h.01"/></svg><p>อย่าอธิบายยาขณะที่ซองยังวางอยู่บนโต๊ะ ญาติต้องเห็นหน้าตายาแต่ละตัว ไม่อย่างนั้นกลับบ้านไปก็ต้องเดาเอาเอง</p></div>
+  <div class="hw"><b>การบ้าน:</b> เขียนบทพูดอธิบาย Amoxicillin 500 mg ตามลำดับ 5 ขั้นในหน้านี้ ให้มีประโยคเรื่องอาการแพ้ยาด้วย และไม่ยาวเกิน 6 บรรทัด</div>
+</section>
+
+<!-- CH3 -->
+<section class="slide" id="ch3" data-g="บท 3 ปิดท้าย" data-t="หน้าคั่นบท 3">
+  <div class="divider">
+    <div class="num">3</div>
+    <h2>ปิดท้ายให้เอาไปใช้ได้จริง</h2>
+    <p>ก่อนยื่นถุงยา ต้องแน่ใจว่าญาติแยกยาได้ รู้ว่าต้องดูแลอะไรนอกจากยา และรู้ว่าเมื่อไรต้องกลับมา</p>
+    <div class="chips"><span class="chip">ให้ชี้ยา</span><span class="chip">คำแนะนำที่ไม่ใช่ยา</span><span class="chip">เมื่อไรต้องกลับมา</span><span class="chip">เปิดให้ถาม</span></div>
+  </div>
+</section>
+
+<section class="slide" data-g="บท 3 ปิดท้าย" data-t="ลำดับปิดท้าย">
+  <h2>ลำดับปิดท้าย 5 ขั้น</h2>
+  <div class="flow">
+    <div class="node key"><span class="k">1</span><span class="nm">teach-back แบบให้ชี้ยา</span><span class="say">ให้ญาติหยิบยาแต่ละตัวแล้วบอกวิธีใช้</span></div>
+    <span class="arr"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span>
+    <div class="node"><span class="k">2</span><span class="nm">คำแนะนำที่ไม่ใช่ยา</span><span class="say">ดูแลแผล ดื่มน้ำ พักผ่อน ตามเคส</span></div>
+    <span class="arr"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span>
+    <div class="node key"><span class="k">3</span><span class="nm">เมื่อไรต้องกลับมา</span><span class="say">อาการแย่ลง หรือไม่ดีขึ้นในกี่วัน</span></div>
+    <span class="arr"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span>
+    <div class="node"><span class="k">4</span><span class="nm">เปิดให้ถาม</span><span class="say">"มีอะไรอยากถามเพิ่มไหมคะ"</span></div>
+    <span class="arr"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span>
+    <div class="node out"><span class="k">5</span><span class="nm">ยื่นยาพร้อมสบตา</span><span class="say">ดูสีหน้าว่าเขามั่นใจหรือยัง</span></div>
+  </div>
+  <div class="teach"><b>เรื่องการสบตา:</b> นักศึกษาหลายคนก้มดูยาหรือเอกสารตลอดเพราะกำลังนึกว่าจะพูดอะไร แต่การมองหน้าผู้รับยาคือวิธีเดียวที่จะรู้ว่าเขาตามทันหรือเปล่า และควรพูดช้าลงตรงไหน</div>
+</section>
+
+<section class="slide" data-g="บท 3 ปิดท้าย" data-t="teach-back แบบชี้ยา">
+  <h2>teach-back: ทวนด้วยปาก กับ ให้ชี้ยา</h2>
+  <div class="branch">
+    <div class="side weak"><span class="tag">ทวนด้วยปาก</span>
+      <div class="quote">"รบกวนช่วยทวนวิธีใช้ยาให้ฟังหน่อยค่ะ"</div>
+      <p>ญาติตอบได้ว่า "ยาฆ่าเชื้อวันละ 2 ครั้ง ยาแก้แพ้ก่อนนอน" แต่เรายังไม่รู้ว่าเขาแยกได้ไหมว่าเม็ดไหนคือตัวไหน</p>
+    </div>
+    <div class="side strong"><span class="tag">ให้ชี้ยา</span>
+      <div class="quote">"ลองหยิบให้ดูหน่อยค่ะ ตัวไหนยาฆ่าเชื้อ ตัวไหนยาแก้แพ้ แล้วแต่ละตัวกินยังไงคะ"</div>
+      <p>ได้ทั้ง teach-back และได้เช็กว่าเขาจำหน้าตายาได้ เหมาะกับเคสรับแทนมาก เพราะคนที่จะกินยาไม่ได้อยู่ฟัง</p>
+    </div>
+  </div>
+  <div class="callout"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 8v5M12 16h.01"/></svg><p>ถ้าญาติทวนผิด เช่น "ยาฆ่าเชื้อกินวันละ 2 ครั้งใช่ไหม" ให้แก้ทันทีแล้วให้ทวนใหม่อีกรอบ อย่าแค่บอกว่า "ไม่ใช่ค่ะ วันละ 4" แล้วไปต่อ</p></div>
+</section>
+
+<section class="slide" data-g="บท 3 ปิดท้าย" data-t="คำแนะนำที่ไม่ใช่ยาและเมื่อไรต้องกลับมา">
+  <h2>คำแนะนำที่ไม่ใช่ยา และเมื่อไรต้องกลับมา</h2>
+  <div class="tw"><table>
+    <thead><tr><th>เคส</th><th>คำแนะนำที่ไม่ใช่ยา</th><th>กลับมาพบแพทย์เมื่อ</th></tr></thead>
+    <tbody>
+      <tr><td><b>แผลติดเชื้อในเด็ก</b><br><span class="small">Cellulitis</span></td><td>ล้างมือก่อนทายา ทำความสะอาดแผลแล้วซับให้แห้งก่อนทา ระวังแผลโดนน้ำสกปรก</td><td>แดงลามกว้างขึ้น มีไข้ ปวดมากขึ้น หรือ 2–3 วันแล้วไม่ดีขึ้น</td></tr>
+      <tr><td><b>เจ็บคอติดเชื้อ</b><br><span class="small">Pharyngitis</span></td><td>ดื่มน้ำมาก ๆ พักผ่อนให้พอ กินอาหารอ่อน ๆ</td><td>กลืนลำบากมาก ไข้สูงไม่ลด หายใจลำบาก หรือกินยาครบแล้วไม่ดีขึ้น</td></tr>
+    </tbody>
+  </table></div>
+  <p class="small">เกณฑ์ "กลับมาเมื่อ" ในตารางเป็นแนวทางทั่วไป ปรับตามที่แพทย์ผู้สั่งยาแนะนำ</p>
+</section>
+
+<section class="slide" data-g="บท 3 ปิดท้าย" data-t="บทพูดปิดท้ายและการบ้าน">
+  <h2>บทพูดตัวอย่าง ช่วงปิดท้าย</h2>
+  <div class="legend"><span><i class="sw sa"></i>teach-back แบบชี้ยา</span><span><i class="sw sb"></i>คำแนะนำที่ไม่ใช่ยา</span><span><i class="sw sc"></i>เมื่อไรต้องกลับมาและเปิดให้ถาม</span></div>
+  <div class="script"><button class="copy" type="button">คัดลอก</button><div class="txt"><span class="seg sa">ลองหยิบให้ดูหน่อยค่ะ ตัวไหนยากิน ตัวไหนยาทา แล้วแต่ละตัวใช้ยังไงคะ</span> <span class="seg sb">ก่อนทายาให้ล้างมือ ทำความสะอาดแผลแล้วซับให้แห้งก่อนนะคะ ระวังอย่าให้แผลโดนน้ำสกปรก</span> <span class="seg sc">ถ้าแผลแดงลามกว้างขึ้น น้องมีไข้ หรือสองสามวันแล้วไม่ดีขึ้น ให้พากลับมาพบคุณหมอนะคะ มีอะไรอยากถามเพิ่มไหมคะ</span></div></div>
+  <div class="hw"><b>การบ้าน:</b> จับคู่กับเพื่อน ผลัดกันเป็นเภสัชกรกับญาติ ซ้อมเฉพาะช่วงปิดท้ายของเคสเจ็บคอ คนเป็นญาติตั้งใจทวนผิดหนึ่งจุด ดูว่าเพื่อนจับได้และแก้ได้หรือไม่</div>
+</section>
+
+<!-- CH4 -->
+<section class="slide" id="ch4" data-g="บท 4 กรณีศึกษา" data-t="หน้าคั่นบท 4">
+  <div class="divider" style="background:linear-gradient(135deg,#006838,#1D2D5F)">
+    <div class="num">4</div>
+    <h2>กรณีศึกษา: ซ้อมเป็นคู่</h2>
+    <p>ใช้ใบสั่งยาชุดเดียวกับห้องสอบ คนหนึ่งเป็นเภสัชกร อีกคนเป็นญาติที่มารับยาแทน แล้วสลับบท</p>
+    <div class="chips"><span class="chip">เคส 1 แผลติดเชื้อ</span><span class="chip">เคส 2 เจ็บคอ</span><span class="chip">คำถามลองเชิง</span></div>
+  </div>
+</section>
+
+<section class="slide" data-g="บท 4 กรณีศึกษา" data-t="เคส 1 แผลติดเชื้อ">
+  <h2>เคส 1 · เด็กชาย 10 ปี แผลติดเชื้อ</h2>
+  <div class="grid g2">
+    <div class="rx">
+      <div class="hd"><span>ใบสั่งยา</span><span>Dx: Cellulitis</span></div>
+      <div class="bd">
+        <p>ด.ช.ทรงวิทย์ กิจการ อายุ 10 ปี · ไม่มีโรคประจำตัว · ปฏิเสธการแพ้ยา</p>
+        <p class="small">ผู้มารับยา: พ่อ (มารับแทน)</p>
+        <div class="drug"><span>Dicloxacillin 250 mg 1x4 po ac</span><span>20</span></div>
+        <div class="drug"><span>Mupirocin 2% w/w (15 g) ทาวันละ 3 ครั้ง 10 วัน</span><span>1 หลอด</span></div>
+      </div>
+    </div>
+    <div class="card">
+      <h3>ห้ามพลาดในเคสนี้</h3>
+      <ul class="must">
+        <li>ถามว่ารับแทนใคร และน้องกลืนแคปซูลได้ไหม</li>
+        <li>บอกว่ากินก่อนอาหารนานเท่าไร ตอนท้องว่าง</li>
+        <li>บอกว่ายากินหมดวันที่ 5 แต่ยาทาต้องครบ 10 วัน</li>
+        <li>เตือนอาการแพ้ยากลุ่มเพนิซิลลิน</li>
+        <li>สอนล้างมือ ทำความสะอาดแผลก่อนทา และเมื่อไรต้องกลับมา</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<section class="slide" data-g="บท 4 กรณีศึกษา" data-t="เคส 2 เจ็บคอ">
+  <h2>เคส 2 · ผู้หญิง 35 ปี เจ็บคอ</h2>
+  <div class="grid g2">
+    <div class="rx">
+      <div class="hd"><span>ใบสั่งยา</span><span>Dx: Pharyngitis</span></div>
+      <div class="bd">
+        <p>น.ส.ยาดี ดีดี อายุ 35 ปี · ไม่มีโรคประจำตัว · ปฏิเสธการแพ้ยา</p>
+        <p class="small">ผู้มารับยา: พี่ชาย (มารับแทน)</p>
+        <div class="drug"><span>Amoxicillin 500 mg 1 cap po q 12 h</span><span>20</span></div>
+        <div class="drug"><span>Cetirizine 10 mg 1x1 po hs</span><span>10</span></div>
+      </div>
+    </div>
+    <div class="card">
+      <h3>ห้ามพลาดในเคสนี้</h3>
+      <ul class="must">
+        <li>ถามแพ้ยา อาหาร สารเคมีให้ครบ แม้ใบสั่งจะเขียนว่าไม่แพ้</li>
+        <li>Amoxicillin ทุก 12 ชั่วโมง กินจนหมด 10 วัน</li>
+        <li>Cetirizine ก่อนนอน อาจง่วงได้ เลี่ยงขับรถและแอลกอฮอล์</li>
+        <li>เตือนอาการแพ้ยากลุ่มเพนิซิลลิน</li>
+        <li>ให้ชี้ว่าเม็ดไหนยาฆ่าเชื้อ เม็ดไหนยาแก้แพ้</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<section class="slide" data-g="บท 4 กรณีศึกษา" data-t="คำถามลองเชิง">
+  <h2>คำถามลองเชิง: ญาติถามแบบนี้ จะตอบว่าอะไร</h2>
+  <p class="lead">คนเป็นญาติเลือกถามหนึ่งข้อระหว่างซ้อม คนเป็นเภสัชกรตอบพร้อมเหตุผล แล้วค่อยกดดูแนวคำตอบ</p>
+  <details><summary>"ยาทานี่ ถ้าแผลหายแล้ว หยุดได้เลยไหมครับ"</summary><p>ให้ทาต่อจนครบ 10 วันตามที่แพทย์สั่ง แผลที่ดูดีขึ้นอาจยังมีเชื้ออยู่ ตอบให้ได้เหตุผล ไม่ใช่แค่ "ตามที่หมอสั่ง"</p></details>
+  <details><summary>"ถ้าน้องเขานอนกลางวัน ให้กินยาแก้แพ้ตอนบ่ายได้ไหมครับ"</summary><p>แนะนำให้กินก่อนนอนตอนกลางคืนตามใบสั่ง เพราะยาอาจทำให้ง่วง ถ้ากินตอนบ่ายอาจง่วงต่อตอนเย็นที่ต้องทำกิจกรรมอื่น</p></details>
+  <details><summary>"ลูกกลืนแคปซูลไม่ได้ ทำยังไงดีครับ"</summary><p>อย่าเดาเอง ให้ปรึกษาเภสัชกรหรือแพทย์เรื่องรูปแบบยา เช่น ยาน้ำแขวนตะกอน การแกะแคปซูลผสมอาหารต้องดูว่ายานั้นทำได้หรือไม่ และอาจกระทบการกินตอนท้องว่าง</p></details>
+  <details><summary>"ยากินหมดแล้ว ต้องหยุดยาทาด้วยไหมครับ"</summary><p>ไม่ต้องหยุด ยาทาให้ทาต่อจนครบ 10 วัน ยากินหมดก่อนเพราะจ่ายมาแค่ 5 วัน ไม่ต้องกลับมาเอาเพิ่ม</p></details>
+</section>
+
+<!-- Summary -->
+<section class="slide" data-g="สรุป" data-t="สรุป">
+  <h2>สรุป: สามคำที่ต้องจำ</h2>
+  <div class="formula">
+    <div class="f f1"><b>เปิดให้ครบ</b><span>2 ตัวบ่งชี้ · รับแทนใคร · แพ้ 3 อย่าง · แพทย์บอกอะไรมา</span></div>
+    <div class="f f2"><b>ชูให้เห็น</b><span>ถือยาไว้ในมือ · ชื่อยาจริง · ระยะเวลา · สัญญาณอันตราย</span></div>
+    <div class="f f3"><b>ปิดให้ใช้ได้</b><span>ให้ชี้ยา · ดูแลตัวเอง · เมื่อไรต้องกลับมา · เปิดให้ถาม</span></div>
+  </div>
+  <div class="grid g2">
+    <div class="teach"><b>หมายเหตุสำหรับผู้สอน:</b> เวลากิน Dicloxacillin ก่อนอาหาร (ในแบบประเมินรอบนี้เขียนอย่างน้อย 30 นาที ส่วนสไลด์ใช้ประมาณ 1 ชั่วโมง) และการแนะนำ Cetirizine แบบตามอาการ ควรให้ทีมรายวิชาตกลงกันก่อนใช้สไลด์นี้</div>
+    <div class="credit"><span class="nm">ดร.ภก.วิรุณ เวชศิริ</span><span>คณะเภสัชศาสตร์ มหาวิทยาลัยธรรมศาสตร์</span><span class="small">เอกสารประกอบการสอน · ห้ามนำไปเผยแพร่โดยไม่ได้รับอนุญาต</span><span class="small">เรียบเรียงจากการสังเกตการสอบปฏิบัติการส่งมอบยา PM311 วันที่ 14 ตุลาคม 2569</span></div>
+  </div>
+  <div class="hw"><b>ชวนคิดก่อนจบ:</b> ถ้าคนที่มารับยาเป็นพ่อที่ต้องรีบกลับไปทำงาน มีเวลาฟังแค่สองนาที คุณจะตัดอะไรออก และอะไรที่ตัดไม่ได้เด็ดขาด</div>
+</section>
+
+</main>
+
+<nav class="pager" aria-label="เลื่อนหน้า">
+  <button class="btn" id="prev" type="button">ก่อนหน้า</button>
+  <div class="prog" aria-hidden="true"><i id="bar"></i></div>
+  <span class="pno" id="pno">1/1</span>
+  <button class="btn" id="next" type="button">ถัดไป</button>
+</nav>
+<footer class="foot">คณะเภสัชศาสตร์ มหาวิทยาลัยธรรมศาสตร์ | pharm.tu.ac.th | <span id="fno">1</span></footer>
+
+<div class="scrim" id="scrim" hidden></div>
+<aside class="drawer" id="drawer" hidden aria-label="สารบัญ"><h3>สารบัญ</h3><div id="tocList"></div></aside>
+
+<script>
+(function(){
+  var slides=[].slice.call(document.querySelectorAll('.slide'));
+  var n=slides.length, cur=0, stage=document.getElementById('stage');
+  var KEY='pm311-dispensing-slide';
+  function show(i){
+    i=Math.max(0,Math.min(n-1,i)); cur=i;
+    slides.forEach(function(s,k){s.classList.toggle('on',k===i)});
+    document.getElementById('pno').textContent=(i+1)+'/'+n;
+    document.getElementById('fno').textContent=(i+1);
+    document.getElementById('bar').style.width=((i+1)/n*100)+'%';
+    document.getElementById('prev').disabled=i===0;
+    document.getElementById('next').disabled=i===n-1;
+    stage.scrollTop=0;
+    try{history.replaceState(null,'','#s'+(i+1))}catch(e){}
+    try{localStorage.setItem(KEY,String(i))}catch(e){}
+    [].forEach.call(document.querySelectorAll('#tocList .it'),function(b){b.classList.toggle('cur',+b.dataset.i===i)});
+  }
+  // TOC
+  var list=document.getElementById('tocList'), last=null;
+  slides.forEach(function(s,i){
+    var g=s.dataset.g;
+    if(g!==last){var h=document.createElement('div');h.className='grp';h.textContent=g;list.appendChild(h);last=g}
+    var b=document.createElement('button');b.type='button';b.className='it';b.dataset.i=i;b.textContent=(i+1)+'. '+s.dataset.t;
+    b.addEventListener('click',function(){show(i);closeToc()});list.appendChild(b);
+  });
+  var drawer=document.getElementById('drawer'), scrim=document.getElementById('scrim');
+  function openToc(){drawer.hidden=false;scrim.hidden=false;var c=drawer.querySelector('.cur');if(c)c.focus()}
+  function closeToc(){drawer.hidden=true;scrim.hidden=true}
+  document.getElementById('tocBtn').addEventListener('click',function(){drawer.hidden?openToc():closeToc()});
+  scrim.addEventListener('click',closeToc);
+  document.getElementById('prev').addEventListener('click',function(){show(cur-1)});
+  document.getElementById('next').addEventListener('click',function(){show(cur+1)});
+  document.addEventListener('keydown',function(e){
+    if(e.target.closest&&e.target.closest('input,textarea'))return;
+    if(e.key==='Escape'){closeToc();return}
+    if(e.key==='ArrowRight'||e.key==='PageDown'){show(cur+1);e.preventDefault()}
+    else if(e.key==='ArrowLeft'||e.key==='PageUp'){show(cur-1);e.preventDefault()}
+    else if(e.key==='Home'){show(0);e.preventDefault()}
+    else if(e.key==='End'){show(n-1);e.preventDefault()}
+  });
+  var sx=null,sy=null;
+  stage.addEventListener('touchstart',function(e){sx=e.touches[0].clientX;sy=e.touches[0].clientY},{passive:true});
+  stage.addEventListener('touchend',function(e){
+    if(sx===null)return;var dx=e.changedTouches[0].clientX-sx,dy=e.changedTouches[0].clientY-sy;
+    if(Math.abs(dx)>60&&Math.abs(dx)>Math.abs(dy)*1.5){show(cur+(dx<0?1:-1))}sx=null;
+  },{passive:true});
+  // jump buttons
+  [].forEach.call(document.querySelectorAll('[data-go]'),function(b){
+    b.addEventListener('click',function(){var t=document.getElementById(b.dataset.go);var i=slides.indexOf(t);if(i>=0)show(i)});
+  });
+  // copy
+  [].forEach.call(document.querySelectorAll('.script .copy'),function(btn){
+    btn.addEventListener('click',function(){
+      var txt=btn.parentNode.querySelector('.txt');var t=txt.textContent.replace(/\s+/g,' ').trim();
+      function sel(){var r=document.createRange();r.selectNodeContents(txt);var s=window.getSelection();s.removeAllRanges();s.addRange(r);btn.textContent='เลือกข้อความแล้ว'}
+      try{navigator.clipboard.writeText(t).then(function(){btn.textContent='คัดลอกแล้ว';setTimeout(function(){btn.textContent='คัดลอก'},1600)},sel)}catch(e){sel()}
+    });
+  });
+  // start
+  var start=0, m=/^#s(\d+)$/.exec(location.hash||'');
+  if(m)start=+m[1]-1;else{try{var v=localStorage.getItem(KEY);if(v!==null)start=+v||0}catch(e){}}
+  show(start);
+})();
+</script>
+</body>
+</html>
