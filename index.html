@@ -37,6 +37,9 @@ body{background:var(--bg);color:var(--fg);font-family:var(--font);font-size:17px
 .stage{flex:1;min-height:0;overflow:auto;padding-block:24px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
 .slide{display:none;max-width:1080px;margin:0 auto;min-height:100%;flex-direction:column;justify-content:center;gap:18px}
 .slide.on{display:flex}
+/* fit mode: on landscape screens each slide is laid out at 1080px and scaled to fill the stage */
+.stage.fit{display:flex;align-items:safe center;justify-content:safe center;overflow:auto}
+.stage.fit .slide.on{width:1080px;max-width:none;min-height:0;flex-shrink:0;margin:0}
 h1,h2,h3{text-wrap:balance;line-height:1.3;margin:0}
 h2{font-size:30px;font-weight:700;color:var(--red);padding-bottom:8px;border-bottom:2px solid var(--gold)}
 h3{font-size:20px;font-weight:600}
@@ -573,10 +576,31 @@ details p{margin-top:8px;color:var(--fg)}
     document.getElementById('prev').disabled=i===0;
     document.getElementById('next').disabled=i===n-1;
     stage.scrollTop=0;
+    fit();
     try{history.replaceState(null,'','#s'+(i+1))}catch(e){}
     try{localStorage.setItem(KEY,String(i))}catch(e){}
     [].forEach.call(document.querySelectorAll('#tocList .it'),function(b){b.classList.toggle('cur',+b.dataset.i===i)});
   }
+  // scale the current slide to fill a landscape screen; phones keep normal reflow
+  var BASE=1080;
+  function fit(){
+    var s=slides[cur]; if(!s)return;
+    var wide=window.innerWidth>860&&window.innerWidth>window.innerHeight*1.1;
+    stage.classList.toggle('fit',wide);
+    s.style.zoom='';
+    if(!wide)return;
+    var cs=getComputedStyle(stage);
+    var aw=stage.clientWidth-parseFloat(cs.paddingLeft)-parseFloat(cs.paddingRight);
+    var ah=stage.clientHeight-parseFloat(cs.paddingTop)-parseFloat(cs.paddingBottom);
+    var h=s.offsetHeight||1;
+    var z=Math.min(aw/BASE,ah/h);
+    z=Math.max(0.6,Math.min(z,2.4));
+    s.style.zoom=String(z);
+  }
+  var rt=null;
+  window.addEventListener('resize',function(){clearTimeout(rt);rt=setTimeout(fit,80)});
+  if(document.fonts&&document.fonts.ready)document.fonts.ready.then(fit);
+  [].forEach.call(document.querySelectorAll('details'),function(d){d.addEventListener('toggle',fit)});
   // TOC
   var list=document.getElementById('tocList'), last=null;
   slides.forEach(function(s,i){
